@@ -1,44 +1,110 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>С Новым годом</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            background-color: #0f1220;
-            color: #eaeaf0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.7;
-            padding: 40px 20px;
-            margin: 0;
-        }
-        .container {
-            max-width: 720px;
-            margin: 0 auto;
-        }
-        h1 {
-            font-size: 28px;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-        p {
-            margin: 0 0 18px 0;
-            white-space: pre-line;
-            font-size: 17px;
-        }
-        footer {
-            margin-top: 50px;
-            font-size: 14px;
-            opacity: 0.6;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>С Новым годом</h1>
+<meta charset="UTF-8">
+<title>С Новым годом</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <p>
+<style>
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: radial-gradient(circle at top, #1c2540, #0b0f1a);
+        color: #f0f0f5;
+        overflow-x: hidden;
+    }
+
+    .container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 50px 20px 80px;
+        position: relative;
+        z-index: 2;
+    }
+
+    h1 {
+        font-weight: 500;
+        margin-bottom: 30px;
+    }
+
+    p {
+        white-space: pre-line;
+        line-height: 1.7;
+        font-size: 17px;
+        margin-bottom: 20px;
+    }
+
+    .button {
+        display: inline-block;
+        margin-top: 40px;
+        padding: 14px 28px;
+        font-size: 16px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #ffcc70, #ff7b7b);
+        color: #1a1a1a;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 10px 30px rgba(255, 150, 150, 0.3);
+    }
+
+    .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(255, 150, 150, 0.5);
+    }
+
+    /* Скрытый блок поздравления */
+    #celebration {
+        display: none;
+        text-align: center;
+        padding-top: 100px;
+    }
+
+    #celebration h2 {
+        font-size: 42px;
+        margin-bottom: 20px;
+    }
+
+    #celebration p {
+        font-size: 20px;
+        opacity: 0.9;
+    }
+
+    /* Огоньки */
+    .lights {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 120px;
+        background: repeating-linear-gradient(
+            90deg,
+            #ffcc70 0 10px,
+            transparent 10px 40px
+        );
+        opacity: 0.15;
+        z-index: 1;
+    }
+
+    canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 0;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="lights"></div>
+<canvas id="fireworks"></canvas>
+
+<div class="container" id="mainText">
+    <h1>Немного слов перед Новым годом</h1>
+
+    <p>
 Привет.
 Если ты читаешь это сообщение — значит, ты важен для меня.
 
@@ -76,8 +142,6 @@
 В этом году я также нашёл работу, которая мне действительно нравится.
 Не просто работу ради работы, а дело, в котором есть интерес и ощущение движения вперёд.
 
-И я понимаю, что всё это — часть одного пути.
-
 Я хочу сказать спасибо.
 Спасибо тебе.
 
@@ -85,22 +149,70 @@
 За поддержку — даже если ты сам не знал, что поддерживаешь.
 За то, что ты есть в моей жизни.
 
-Каждый из вас сделал меня таким, какой я есть сейчас.
-Чуть сильнее. Чуть глубже. Честнее с собой.
-
-Я благодарен всем, кому отправляю это сообщение.
-Вы — часть моего пути.
-
 Пусть новый год будет немного легче.
-Пусть в нём будет больше спокойствия, тепла и настоящих моментов.
+    </p>
 
-С Новым годом тебя.
-И спасибо, что ты есть.
-        </p>
+    <button class="button" onclick="showCelebration()">Дальше</button>
+</div>
 
-        <footer>
-            2025
-        </footer>
-    </div>
+<div class="container" id="celebration">
+    <h2>🎆 С Новым годом 🎆</h2>
+    <p>
+Пусть в новом году будет больше тепла,  
+спокойствия и настоящих моментов.  
+
+Спасибо, что ты есть.
+    </p>
+</div>
+
+<script>
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let fireworks = [];
+
+function random(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function createFirework() {
+    const x = random(100, canvas.width - 100);
+    const y = random(100, canvas.height / 2);
+    for (let i = 0; i < 50; i++) {
+        fireworks.push({
+            x,
+            y,
+            vx: random(-3, 3),
+            vy: random(-3, 3),
+            alpha: 1
+        });
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    fireworks.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.01;
+        ctx.fillStyle = `rgba(255,200,150,${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        if (p.alpha <= 0) fireworks.splice(i, 1);
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+
+function showCelebration() {
+    document.getElementById("mainText").style.display = "none";
+    document.getElementById("celebration").style.display = "block";
+    setInterval(createFirework, 800);
+}
+</script>
+
 </body>
 </html>
